@@ -1,0 +1,41 @@
+{
+  "name": "pi-cicd",
+  "version": "0.1.1",
+  "description": "Pi extension for headless CI mode with structured exit codes, answer injection, and pipeline automation",
+  "author": "baphuongna",
+  "license": "MIT",
+  "type": "module",
+  "keywords": [
+    "pi-package",
+    "pi",
+    "pi-coding-agent",
+    "ci",
+    "headless",
+    "automation"
+  ],
+  "files": [
+    "*.ts",
+    "src/**/*.ts",
+    "README.md",
+    "AGENTS.md",
+    "tsconfig.json"
+  ],
+  "scripts": {
+    "check": "npm run typecheck && npm test",
+    "typecheck": "tsc --noEmit",
+    "test": "node --experimental-strip-types --test --test-concurrency=1 --test-timeout=30000 test/unit/*.test.ts"
+  },
+  "pi": {
+    "extensions": [
+      "./index.ts"
+    ]
+  },
+  "peerDependencies": {
+    "@mariozechner/pi-coding-agent": "*"
+  },
+  "peerDependenciesMeta": {
+    "@mariozechner/pi-coding-agent": {
+      "optional": true
+    }
+  }
+}

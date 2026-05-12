@@ -6,6 +6,7 @@
  */
 
 import type { AnswerEntry, AnswerFile } from "../types.ts";
+import * as fs from "fs";
 
 /**
  * Read and validate an answers JSON file.
@@ -17,7 +18,7 @@ import type { AnswerEntry, AnswerFile } from "../types.ts";
 export async function loadAnswers(filePath: string): Promise<AnswerEntry[]> {
   let text: string;
   try {
-    text = await Bun.file(filePath).text();
+    text = fs.readFileSync(filePath, "utf-8");
   } catch {
     return [];
   }

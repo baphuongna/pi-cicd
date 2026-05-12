@@ -8,7 +8,8 @@
 import type { ExitCode, CIEvent, CIOptions } from "../types.ts";
 import { EXIT_CODES } from "../types.ts";
 import { resolveExitCode } from "./exit-codes.ts";
-import { matchAnswer, type AnswerEntry } from "./answer-injector.ts";
+import { matchAnswer } from "./answer-injector.ts";
+import type { AnswerEntry } from "../types.ts";
 import { IdleDetector } from "./idle-detector.ts";
 import { CIEventCollector, writeCIEvent } from "./jsonl-stream.ts";
 import type { Writable } from "node:stream";

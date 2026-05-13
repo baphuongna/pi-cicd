@@ -18,7 +18,7 @@ CI/CD workflow automation extension for Pi coding agents.
 pi install npm:pi-cicd
 ```
 
-## Usage
+## Quick Start
 
 ### Run Pipeline
 ```bash
@@ -37,10 +37,13 @@ pi install npm:pi-cicd
 
 ## Commands
 
-- `/ci` - CI/CD main command
-- `/ci run` - Run pipeline
-- `/ci status` - Check status
-- `/ci deploy` - Deploy
+| Command | Description |
+|---------|-------------|
+| `/ci` | CI/CD main command |
+| `/ci run` | Run pipeline |
+| `/ci status` | Check status |
+| `/ci deploy` | Deploy |
+| `/ci canary` | Canary deployment |
 
 ## Verify
 

@@ -8,45 +8,92 @@ pi install npm:pi-cicd
 
 ## Basic Usage
 
-### Deploy
+### 1. Run Pipeline
 
 ```bash
-/deploy production
+# Run default pipeline
+/ci run
+
+# Run specific environment
+/ci run production
+
+# Run with variables
+/ci run staging --var=VERSION=1.2.3
 ```
 
-### Canary Release
+### 2. Check Status
 
 ```bash
-/canary 10
+# Check current run status
+/ci status
+
+# Check specific run
+/ci status --run-id=abc123
 ```
 
-### Rollback
+### 3. Deploy
 
 ```bash
-/rollback
+# Deploy to environment
+/ci deploy production
+
+# Deploy with confirmation
+/ci deploy staging --confirm
 ```
 
-### Create PR
+### 4. Canary Deployment
 
 ```bash
-/pr feature
+# Start canary (10% traffic)
+/ci canary deploy --percentage 10
+
+# Increase canary
+/ci canary promote --percentage 25
+
+# Rollback canary
+/ci canary rollback
 ```
 
-## Deployment Workflow
+## Examples
 
-```typescript
-import { createDeploymentWorkflow } from 'pi-cicd';
+### Example: Production Deploy
 
-const workflow = createDeploymentWorkflow({
-  name: 'my-app',
-  stages: ['build', 'test', 'staging', 'production'],
-  canary: { initial: 10, increment: 20, interval: 60000 },
-});
+```
+/ci run production
 
-await workflow.execute();
+Output:
+## CI/CD Pipeline: production
+
+### Stage: build
+✅ npm install (23s)
+✅ npm run build (45s)
+
+### Stage: test
+✅ Unit tests (89 tests, 12s)
+✅ Integration tests (34 tests, 28s)
+
+### Stage: deploy
+🚀 Deploying to production...
+
+✅ Pipeline complete (2m 34s)
 ```
 
-## Next Steps
+### Example: Headless CI
 
-- Read [API.md](API.md) for full API reference
-- Check [SPEC.md](../SPEC.md) for feature details
+```bash
+# In GitHub Actions
+- name: Run Pi CI
+  run: |
+    pi ci run --headless --exit-code
+```
+
+## Exit Codes
+
+| Code | Meaning |
+|------|---------|
+| 0 | Success |
+| 1 | General error |
+| 2 | Timeout |
+| 10 | Blocked (verification failed) |
+| 11 | Cancelled |
+| 12 | Deployment failed |

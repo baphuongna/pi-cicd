@@ -1,71 +1,52 @@
 # pi-cicd
 
-Extension for Pi coding agent.
+CI/CD workflow automation extension for Pi coding agents.
 
 ## Features
 
-- Comprehensive extension functionality
-- Built on patterns from 52+ source repositories
-- TypeScript source files for easy debugging
+- **Pipeline Orchestration** - Define and run CI/CD pipelines
+- **Headless Mode** - Run in CI environments with exit codes
+- **Exit Codes** - Structured exit codes (0=success, 1=error, 10=blocked, 11=cancelled)
+- **Answer Injection** - Provide answers non-interactively
+- **Event Streaming** - JSONL output for CI integration
+- **Canary Deployments** - Progressive deployment with health checks
+- **Landing Queue** - Queue deployments with rollback capability
 
 ## Install
 
-Installing npm:pi-cicd...
+```bash
+pi install npm:pi-cicd
+```
 
-added 2 packages in 1s
-Installed npm:pi-cicd
+## Usage
+
+### Run Pipeline
+```bash
+/ci run production
+```
+
+### Check Status
+```bash
+/ci status
+```
+
+### Deploy Canary
+```bash
+/ci canary deploy --percentage 10
+```
+
+## Commands
+
+- `/ci` - CI/CD main command
+- `/ci run` - Run pipeline
+- `/ci status` - Check status
+- `/ci deploy` - Deploy
 
 ## Verify
 
-User packages:
-  npm:pi-mcp-adapter
-    /home/bom/.nvm/versions/node/v22.22.0/lib/node_modules/pi-mcp-adapter
-  extensions/minimax-image-gen.ts
-    /home/bom/.pi/agent/extensions/minimax-image-gen.ts
-  ../../source/my_pi/pi-crew
-    /home/bom/source/my_pi/pi-crew
-  ../../source/my_pi/pi-audit
-    /home/bom/source/my_pi/pi-audit
-  ../../source/my_pi/pi-browse
-    /home/bom/source/my_pi/pi-browse
-  ../../source/my_pi/pi-cicd
-    /home/bom/source/my_pi/pi-cicd
-  ../../source/my_pi/pi-debug
-    /home/bom/source/my_pi/pi-debug
-  ../../source/my_pi/pi-langsrv
-    /home/bom/source/my_pi/pi-langsrv
-  ../../source/my_pi/pi-pipeline
-    /home/bom/source/my_pi/pi-pipeline
-  ../../source/my_pi/pi-recollect
-    /home/bom/source/my_pi/pi-recollect
-  ../../source/my_pi/pi-render
-    /home/bom/source/my_pi/pi-render
-  ../../source/my_pi/pi-smart
-    /home/bom/source/my_pi/pi-smart
-  npm:pi-browse
-    /home/bom/.nvm/versions/node/v22.22.0/lib/node_modules/pi-browse
-  npm:pi-cicd
-    /home/bom/.nvm/versions/node/v22.22.0/lib/node_modules/pi-cicd
-
-Project packages:
-  ../pi-audit
-    /home/bom/source/my_pi/pi-audit
-  ../pi-browse
-    /home/bom/source/my_pi/pi-browse
-  ../pi-cicd
-    /home/bom/source/my_pi/pi-cicd
-  ../pi-debug
-    /home/bom/source/my_pi/pi-debug
-  ../pi-langsrv
-    /home/bom/source/my_pi/pi-langsrv
-  ../pi-pipeline
-    /home/bom/source/my_pi/pi-pipeline
-  ../pi-recollect
-    /home/bom/source/my_pi/pi-recollect
-  ../pi-render
-    /home/bom/source/my_pi/pi-render
-  ../pi-smart
-    /home/bom/source/my_pi/pi-smart
+```bash
+pi list
+```
 
 ## License
 

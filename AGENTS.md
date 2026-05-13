@@ -1,25 +1,36 @@
-# pi-ci Development Notes
+# pi-cicd Agent Operating Guide
 
-Pi extension for headless CI mode.
+## Extension Purpose
 
-## Rules
+pi-cicd provides CI/CD pipeline integration, intelligent deployment strategies, and headless mode for Pi coding agents.
 
-- Keep `index.ts` minimal; re-export from `src/` modules.
-- Avoid `any`; use `unknown` plus validation.
-- After code changes, run `npm test` from `pi-ci/` unless explicitly told not to.
+## Source Of Truth
 
-## Important commands
+1. `README.md` - Extension overview
+2. `docs/HARNESS.md` - Operating model
+3. `docs/FEATURE_INTAKE.md` - Intake process
+4. `docs/product/` - Product contracts
+5. `docs/stories/` - Story packets
+6. `docs/TEST_MATRIX.md` - Proof status
+7. `docs/decisions/` - Decision records
+
+## Extension Capabilities
+
+### Core Tools
+- `ci_status` - Check CI/CD pipeline status
+- `deploy_strategy` - Canary, blue-green, rolling deployments
+- `release_notes` - Generate release notes
+- `headless_mode` - Headless agent execution
+
+### Commands
+- `/ci-status` - Check pipeline status
+- `/deploy` - Trigger deployment
+- `/release` - Create release
+
+## Validation Commands
 
 ```bash
 npm test
-npm run typecheck
+npm run lint
+npx tsc --noEmit
 ```
-
-## Important paths
-
-- `index.ts` — extension entry point
-- `src/headless/` — core headless mode (exit codes, answers, idle, JSONL, orchestrator)
-- `src/ci/` — CI pipeline, PR creation, test runner, reports
-- `src/tools/` — /ci status command
-- `src/config.ts` — configuration loading
-- `test/unit/` — unit tests

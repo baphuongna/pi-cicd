@@ -1,44 +1,41 @@
 {
   "name": "pi-cicd",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Pi extension for headless CI mode with structured exit codes, answer injection, and pipeline automation",
-  "author": "baphuongna",
-  "license": "MIT",
   "type": "module",
-  "keywords": [
-    "pi-package",
-    "pi",
-    "pi-coding-agent",
-    "ci",
-    "headless",
-    "automation"
-  ],
-  "files": [
-    "*.ts",
-    "src/**/*.ts",
-    "README.md",
-    "AGENTS.md",
-    "tsconfig.json"
-  ],
-  "scripts": {
-    "check": "npm run typecheck && npm test",
-    "typecheck": "tsc --noEmit",
-    "test": "npx tsx --test --test --test-concurrency=1 --test-timeout=30000 test/unit/*.test.ts"
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
   },
+  "scripts": {
+    "build": "tsc --noEmitOnError false",
+    "typecheck": "tsc --noEmit",
+    "test": "npx tsx --test --test-concurrency=1 --test-timeout=30000 test/unit/*.test.ts"
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "pi",
+    "coding-agent",
+    "extension"
+  ],
+  "author": "BaphuongNA",
+  "license": "MIT",
   "pi": {
     "extensions": [
       "./index.ts"
     ]
   },
   "peerDependencies": {
-    "@mariozechner/pi-coding-agent": "*"
-  },
-  "peerDependenciesMeta": {
-    "@mariozechner/pi-coding-agent": {
-      "optional": true
-    }
+    "typescript": "^5.0.0"
   },
   "devDependencies": {
-    "tsx": "^4.21.0"
+    "tsx": "^4.19.0"
   }
 }

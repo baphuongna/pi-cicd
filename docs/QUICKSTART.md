@@ -3,7 +3,7 @@
 ## Installation
 
 ```bash
-npm install pi-cicd
+pi install npm:pi-cicd
 ```
 
 ## Basic Usage

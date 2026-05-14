@@ -1,6 +1,6 @@
 {
   "name": "pi-cicd",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "Extension for Pi coding agent",
   "type": "module",
   "main": "./index.ts",
@@ -38,5 +38,8 @@
   "peerDependencies": {
     "typescript": "^5.0.0",
     "@earendil-works/pi-coding-agent": ">=0.73.0"
+  },
+  "scripts": {
+    "postinstall": "node install.mjs"
   }
 }

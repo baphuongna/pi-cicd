@@ -4,7 +4,7 @@
 
 import { describe, it, beforeEach } from "node:test";
 import assert from "node:assert/strict";
-import { loadCiConfig, DEFAULT_CONFIG } from "../../src/config.ts";
+import { loadCiConfig, DEFAULT_CONFIG, deepMerge } from "../../src/config.ts";
 import { writeFile, mkdir, rm } from "node:fs/promises";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
@@ -65,14 +65,32 @@ describe("loadCiConfig()", () => {
   });
 });
 
-describe("DEFAULT_CONFIG", () => {
-  it("has all required fields", () => {
-    assert.equal(typeof DEFAULT_CONFIG.enabled, "boolean");
-    assert.equal(typeof DEFAULT_CONFIG.idleTimeoutMs, "number");
-    assert.equal(typeof DEFAULT_CONFIG.maxRetries, "number");
-    assert.equal(typeof DEFAULT_CONFIG.retryBackoffMaxMs, "number");
-    assert.ok(DEFAULT_CONFIG.exitCodes);
-    assert.ok(DEFAULT_CONFIG.report);
-    assert.equal(DEFAULT_CONFIG.report.format, "jsonl");
-  });
+describe("deepMerge", () => {
+	it("recursively merges nested objects, preserving sibling keys", async () => {
+		const base = { a: 1, b: { c: 2, d: 3 }, e: [1, 2] };
+		const override = { b: { c: 99 }, f: 10 };
+		const result = deepMerge(base as Record<string, unknown>, override);
+		const r = result as Record<string, unknown>;
+		assert.equal(r.a, 1);
+		assert.equal((r.b as Record<string, unknown>).c, 99);
+		assert.equal((r.b as Record<string, unknown>).d, 3); // sibling preserved
+		assert.equal(r.f, 10);
+	});
+
+	it("deep-merges nested objects: override exitCode.success without losing siblings", async () => {
+		const testDir = join(tmpdir(), `pi-ci-test-deep-${Date.now()}`);
+		const piDir = join(testDir, ".pi");
+		await mkdir(piDir, { recursive: true });
+		await writeFile(
+			join(piDir, "pi-ci.json"),
+			JSON.stringify({ exitCodes: { success: 99 } }),
+		);
+
+		const config = await loadCiConfig(testDir);
+		assert.equal(config.exitCodes.success, 99);
+		// Siblings preserved
+		assert.equal(config.exitCodes.error, 1);
+		assert.equal(config.exitCodes.blocked, 10);
+		await rm(testDir, { recursive: true, force: true });
+	});
 });

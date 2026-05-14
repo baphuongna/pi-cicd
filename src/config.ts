@@ -51,6 +51,29 @@ const DEFAULT_CONFIG: PiCiConfig = {
   },
 };
 
+/** Recursively merge `override` into `base`, handling nested objects.
+ * Does not mutate either argument.
+ */
+function deepMerge(base: Record<string, unknown>, override: Record<string, unknown>): Record<string, unknown> {
+	const result: Record<string, unknown> = { ...base };
+	for (const key of Object.keys(override)) {
+		const bv = base[key];
+		const ov = override[key];
+		if (
+			bv !== undefined && ov !== undefined &&
+			typeof bv === "object" && !Array.isArray(bv) &&
+			typeof ov === "object" && !Array.isArray(ov)
+		) {
+			result[key] = deepMerge(bv as Record<string, unknown>, ov as Record<string, unknown>);
+		} else {
+			result[key] = ov;
+		}
+	}
+	return result;
+}
+
+export { deepMerge };
+
 /**
  * Load pi-ci configuration from `.pi/pi-ci.json` (if present) merged with defaults.
  */
@@ -62,38 +85,18 @@ export async function loadCiConfig(cwd?: string): Promise<PiCiConfig> {
   try {
     text = await readFile(configPath, "utf-8");
   } catch {
-    return { ...DEFAULT_CONFIG };
+    return structuredClone(DEFAULT_CONFIG) as PiCiConfig;
   }
 
   const raw: unknown = JSON.parse(text);
   if (typeof raw !== "object" || raw === null || Array.isArray(raw)) {
-    return { ...DEFAULT_CONFIG };
+    return structuredClone(DEFAULT_CONFIG) as PiCiConfig;
   }
 
-  const user = raw as Record<string, unknown>;
-  return {
-    enabled: typeof user.enabled === "boolean" ? user.enabled : DEFAULT_CONFIG.enabled,
-    idleTimeoutMs:
-      typeof user.idleTimeoutMs === "number" ? user.idleTimeoutMs : DEFAULT_CONFIG.idleTimeoutMs,
-    maxRetries:
-      typeof user.maxRetries === "number" ? user.maxRetries : DEFAULT_CONFIG.maxRetries,
-    retryBackoffMaxMs:
-      typeof user.retryBackoffMaxMs === "number"
-        ? user.retryBackoffMaxMs
-        : DEFAULT_CONFIG.retryBackoffMaxMs,
-    exitCodes: {
-      ...DEFAULT_CONFIG.exitCodes,
-      ...(typeof user.exitCodes === "object" && user.exitCodes !== null
-        ? (user.exitCodes as Partial<PiCiExitCodeConfig>)
-        : {}),
-    },
-    report: {
-      ...DEFAULT_CONFIG.report,
-      ...(typeof user.report === "object" && user.report !== null
-        ? (user.report as Partial<PiCiReportConfig>)
-        : {}),
-    },
-  };
+  return deepMerge(
+    structuredClone(DEFAULT_CONFIG) as unknown as Record<string, unknown>,
+    raw as Record<string, unknown>,
+  ) as PiCiConfig;
 }
 
 export { DEFAULT_CONFIG };

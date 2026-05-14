@@ -2,30 +2,33 @@
 
 ## Extension Purpose
 
-pi-cicd provides CI/CD pipeline integration, intelligent deployment strategies, and headless mode for Pi coding agents.
+pi-cicd provides CI/CD pipeline monitoring, canary deployment, and landing queue management for Pi coding agents.
 
 ## Source Of Truth
 
 1. `README.md` - Extension overview
-2. `docs/HARNESS.md` - Operating model
-3. `docs/FEATURE_INTAKE.md` - Intake process
-4. `docs/product/` - Product contracts
-5. `docs/stories/` - Story packets
-6. `docs/TEST_MATRIX.md` - Proof status
-7. `docs/decisions/` - Decision records
+2. `skills/intelligent-deploy/SKILL.md` - Deployment skill
+3. `docs/HARNESS.md` - Operating model
+4. `docs/FEATURE_INTAKE.md` - Intake process
+5. `docs/product/` - Product contracts
+6. `docs/stories/` - Story packets
+7. `docs/TEST_MATRIX.md` - Proof status
+8. `docs/decisions/` - Decision records
 
 ## Extension Capabilities
 
-### Core Tools
-- `ci_status` - Check CI/CD pipeline status
-- `deploy_strategy` - Canary, blue-green, rolling deployments
-- `release_notes` - Generate release notes
-- `headless_mode` - Headless agent execution
-
 ### Commands
-- `/ci-status` - Check pipeline status
-- `/deploy` - Trigger deployment
-- `/release` - Create release
+- `/ci` - CI status command
+
+### Skills
+- `skills/intelligent-deploy/SKILL.md` - Canary deployment, landing queues, CI monitoring
+
+## When to Use This Extension
+
+- Deploying to production
+- Monitoring CI/CD pipelines
+- Canary releases
+- Landing queue management
 
 ## Validation Commands
 

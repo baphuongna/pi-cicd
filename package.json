@@ -1,6 +1,6 @@
 {
   "name": "pi-cicd",
-  "version": "1.0.14",
+  "version": "1.0.15",
   "description": "Extension for Pi coding agent",
   "type": "module",
   "main": "./index.ts",

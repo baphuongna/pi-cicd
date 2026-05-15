@@ -29,7 +29,8 @@ export type CIEventType =
   | "ci_edit"
   | "ci_test"
   | "ci_cost"
-  | "ci_end";
+  | "ci_end"
+  | "ci_step_complete";
 
 export interface CIEventBase {
   type: CIEventType;
@@ -81,13 +82,19 @@ export interface CIEndEvent extends CIEventBase {
   duration_ms: number;
 }
 
+export interface CIStepCompleteEvent extends CIEventBase {
+  type: "ci_step_complete";
+  step: number;
+}
+
 export type CIEvent =
   | CIStartEvent
   | CIProgressEvent
   | CIEditEvent
   | CITestEvent
   | CICostEvent
-  | CIEndEvent;
+  | CIEndEvent
+  | CIStepCompleteEvent;
 
 // ---------------------------------------------------------------------------
 // Answer injection

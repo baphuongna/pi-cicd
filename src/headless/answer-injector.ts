@@ -23,7 +23,12 @@ export async function loadAnswers(filePath: string): Promise<AnswerEntry[]> {
     return [];
   }
 
-  const raw: unknown = JSON.parse(text);
+  let raw: unknown;
+  try {
+    raw = JSON.parse(text);
+  } catch {
+    raw = { answer: text };
+  }
 
   if (typeof raw !== "object" || raw === null || Array.isArray(raw)) {
     throw new Error(`Answers file must contain a JSON object with an "answers" array`);
@@ -54,7 +59,12 @@ export async function loadAnswers(filePath: string): Promise<AnswerEntry[]> {
  * Synchronous variant that reads from a string (useful for testing).
  */
 export function parseAnswers(jsonText: string): AnswerEntry[] {
-  const raw: unknown = JSON.parse(jsonText);
+  let raw: unknown;
+  try {
+    raw = JSON.parse(jsonText);
+  } catch {
+    raw = { answer: jsonText };
+  }
 
   if (typeof raw !== "object" || raw === null || Array.isArray(raw)) {
     throw new Error(`Answers file must contain a JSON object with an "answers" array`);

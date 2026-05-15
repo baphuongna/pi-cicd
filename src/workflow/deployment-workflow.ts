@@ -40,6 +40,7 @@ export interface DeploymentState {
   failedSteps: string[];
   startedAt: string;
   finishedAt?: string;
+  error?: string;
 }
 
 /**
@@ -103,7 +104,8 @@ export function createDeploymentWorkflow(
 }
 
 /**
- * Execute a deployment workflow
+ * Execute a deployment workflow with proper dependency handling.
+ * Steps are processed in dependency order, re-queued when dependencies are met.
  */
 export async function* executeDeploymentWorkflow(
   workflow: DeploymentWorkflow,
@@ -123,24 +125,52 @@ export async function* executeDeploymentWorkflow(
   const stepMap = new Map(workflow.steps.map(s => [s.id, s]));
   const completed = new Set<string>();
   
-  for (const step of workflow.steps) {
-    // Check dependencies
-    if (step.dependsOn?.some(dep => !completed.has(dep))) {
-      continue; // Dependencies not met
+  // Track pending steps that haven't been processed yet
+  const pendingSteps = [...workflow.steps];
+  
+  // Keep iterating until all steps are processed
+  while (pendingSteps.length > 0) {
+    let madeProgress = false;
+    
+    // Find steps whose dependencies are all met
+    for (let i = 0; i < pendingSteps.length; i++) {
+      const step = pendingSteps[i];
+      
+      // Check if all dependencies are satisfied
+      if (step.dependsOn?.some(dep => !completed.has(dep))) {
+        continue; // Dependencies not met yet, try next step
+      }
+      
+      // Dependencies are met - execute this step
+      pendingSteps.splice(i, 1); // Remove from pending
+      i--; // Adjust index after splice
+      madeProgress = true;
+      
+      state.status = "running";
+      state.currentStep = step.id;
+      yield state;
+      
+      const result = await executor(step);
+      
+      if (result.success) {
+        completed.add(step.id);
+        state.completedSteps.push(step.id);
+      } else {
+        state.failedSteps.push(step.id);
+        state.status = "failed";
+        state.error = result.error;
+        state.finishedAt = new Date().toISOString();
+        yield state;
+        return;
+      }
     }
     
-    state.status = "running";
-    state.currentStep = step.id;
-    yield state;
-    
-    const result = await executor(step);
-    
-    if (result.success) {
-      completed.add(step.id);
-      state.completedSteps.push(step.id);
-    } else {
-      state.failedSteps.push(step.id);
+    // If no progress but steps remain, we have circular dependencies
+    if (!madeProgress && pendingSteps.length > 0) {
+      const circularDeps = pendingSteps.map(s => s.id).join(", ");
+      state.failedSteps.push(...pendingSteps.map(s => s.id));
       state.status = "failed";
+      state.error = `Circular dependency detected among: ${circularDeps}`;
       state.finishedAt = new Date().toISOString();
       yield state;
       return;

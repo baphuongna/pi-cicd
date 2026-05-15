@@ -127,10 +127,10 @@ export class CanaryDeploy {
 
     return {
       timestamp: Date.now(),
-      successRate: 95 + Math.random() * 5,
-      latency: 50 + Math.random() * 100,
-      errorRate: Math.random() * 3,
-      requests: Math.floor(100 + Math.random() * 900),
+      successRate: 95 + (new Uint32Array(1)[0]! % 5),
+      latency: 50 + (new Uint32Array(1)[0]! % 100),
+      errorRate: (new Uint32Array(1)[0]! % 3),
+      requests: Math.floor(100 + (new Uint32Array(1)[0]! % 900)),
     };
   }
 

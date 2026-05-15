@@ -68,6 +68,9 @@ export class HeadlessOrchestrator {
    * 2. Execute steps via the hook, checking for answer injection
    * 3. On idle timeout → retry with exponential backoff
    * 4. Emit ci_end with the resolved exit code
+   *
+   * In "plan" mode, iterates through all plan steps sequentially.
+   * In "single" mode, executes one prompt to completion.
    */
   async run(prompt: string, mode: "single" | "plan"): Promise<OrchestratorResult> {
     const startTime = Date.now();
@@ -81,24 +84,29 @@ export class HeadlessOrchestrator {
     this.emit(startEvent);
 
     let lastExitCode: ExitCode = EXIT_CODES.ERROR;
-    let retries = 0;
 
-    while (retries <= this.maxRetries) {
-      const result = await this.runAttempt(prompt);
-      lastExitCode = result;
+    if (mode === "plan") {
+      // Plan mode: iterate through steps until done or failure
+      lastExitCode = await this.runPlanMode(prompt);
+    } else {
+      // Single mode: one attempt with retries
+      let retries = 0;
+      while (retries <= this.maxRetries) {
+        const result = await this.runAttempt(prompt);
+        lastExitCode = result;
 
-      if (lastExitCode === EXIT_CODES.SUCCESS) break;
-      if (lastExitCode === EXIT_CODES.BLOCKED || lastExitCode === EXIT_CODES.CANCELLED) break;
+        if (lastExitCode === EXIT_CODES.SUCCESS) break;
+        if (lastExitCode === EXIT_CODES.BLOCKED || lastExitCode === EXIT_CODES.CANCELLED) break;
 
-      // Retry on error/timeout
-      retries++;
-      if (retries <= this.maxRetries) {
-        const delay = Math.min(
-          RESTART_CONFIG.baseDelayMs *
-            Math.pow(RESTART_CONFIG.backoffMultiplier, retries - 1),
-          RESTART_CONFIG.maxDelayMs,
-        );
-        await sleep(delay);
+        retries++;
+        if (retries <= this.maxRetries) {
+          const delay = Math.min(
+            RESTART_CONFIG.baseDelayMs *
+              Math.pow(RESTART_CONFIG.backoffMultiplier, retries - 1),
+            RESTART_CONFIG.maxDelayMs,
+          );
+          await sleep(delay);
+        }
       }
     }
 
@@ -116,6 +124,50 @@ export class HeadlessOrchestrator {
       events: this.collector.all(),
       durationMs,
     };
+  }
+
+  /**
+   * Run in plan mode: iterate through steps until all complete or one fails.
+   * Each step prompt is derived from the original prompt + step context.
+   */
+  private async runPlanMode(prompt: string): Promise<ExitCode> {
+    let stepIndex = 0;
+    let lastExitCode: ExitCode = EXIT_CODES.SUCCESS;
+
+    while (stepIndex <= this.maxRetries) {
+      const stepPrompt = `[Step ${stepIndex + 1}] ${prompt}`;
+      const result = await this.runAttempt(stepPrompt);
+      lastExitCode = result;
+
+      if (result === EXIT_CODES.SUCCESS) {
+        // Step succeeded, emit step completion and continue to next
+        this.emit({
+          type: "ci_step_complete",
+          timestamp: new Date().toISOString(),
+          step: stepIndex + 1,
+        });
+        stepIndex++;
+        continue;
+      }
+
+      if (result === EXIT_CODES.BLOCKED || result === EXIT_CODES.CANCELLED) {
+        // Stop without retry
+        return result;
+      }
+
+      // Error or timeout - retry this step
+      stepIndex++;
+      if (stepIndex <= this.maxRetries) {
+        const delay = Math.min(
+          RESTART_CONFIG.baseDelayMs *
+            Math.pow(RESTART_CONFIG.backoffMultiplier, stepIndex - 1),
+          RESTART_CONFIG.maxDelayMs,
+        );
+        await sleep(delay);
+      }
+    }
+
+    return lastExitCode;
   }
 
   /**

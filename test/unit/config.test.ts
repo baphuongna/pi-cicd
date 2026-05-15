@@ -51,8 +51,9 @@ describe("loadCiConfig()", () => {
     await mkdir(piDir, { recursive: true });
     await writeFile(join(piDir, "pi-ci.json"), "not json");
 
-    // Should throw on invalid JSON
-    await assert.rejects(() => loadCiConfig(testDir));
+    // Should return defaults on invalid JSON
+    const config = await loadCiConfig(testDir);
+    assert.equal(config.enabled, true);
   });
 
   it("handles non-object JSON by returning defaults", async () => {

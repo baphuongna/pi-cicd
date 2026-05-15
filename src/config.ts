@@ -88,15 +88,20 @@ export async function loadCiConfig(cwd?: string): Promise<PiCiConfig> {
     return structuredClone(DEFAULT_CONFIG) as PiCiConfig;
   }
 
-  const raw: unknown = JSON.parse(text);
-  if (typeof raw !== "object" || raw === null || Array.isArray(raw)) {
+  let raw: unknown;
+  try {
+    raw = JSON.parse(text);
+  } catch {
+    raw = null;
+  }
+  if (raw === null || typeof raw !== "object" || Array.isArray(raw)) {
     return structuredClone(DEFAULT_CONFIG) as PiCiConfig;
   }
 
   return deepMerge(
     structuredClone(DEFAULT_CONFIG) as unknown as Record<string, unknown>,
     raw as Record<string, unknown>,
-  ) as PiCiConfig;
+  ) as unknown as PiCiConfig;
 }
 
 export { DEFAULT_CONFIG };

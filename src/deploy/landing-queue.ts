@@ -3,6 +3,8 @@
  * Based on gstack /landing-report pattern
  */
 
+
+import { randomUUID } from 'node:crypto';
 export type DeployStatus = 'pending' | 'deploying' | 'deployed' | 'failed' | 'cancelled';
 export type DeployEnvironment = 'staging' | 'production';
 
@@ -37,7 +39,7 @@ export class LandingQueue {
    */
   enqueue(version: string, environment: DeployEnvironment, message?: string): QueuedDeploy {
     const deploy: QueuedDeploy = {
-      id: `deploy-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+      id: `deploy-${randomUUID()}`,
       version,
       environment,
       status: 'pending',

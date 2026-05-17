@@ -43,14 +43,43 @@ interface ExtensionAPI {
   on?: (event: string, handler: (...args: unknown[]) => void) => void;
 }
 
+// Lazy-load visual tools
+async function getVisualTools() {
+  try {
+    const { visual_update_progress } = await import("@earendil-works/pi-coding-agent");
+    return { visual_update_progress };
+  } catch {
+    return null;
+  }
+}
+
 /**
  * Default export — Pi extension registration.
  */
 export default function piCiExtension(pi: ExtensionAPI): void {
   // Register /ci status command
   if (pi.registerCommand) {
-    pi.registerCommand("ci", (args: unknown) => {
-      return ciStatusHandler(args);
+    pi.registerCommand("ci", async (args: unknown) => {
+      // Show progress while processing
+      const visual = await getVisualTools();
+      if (visual) {
+        await visual.visual_update_progress({
+          total: 1,
+          completed: 0,
+          currentTask: "Running CI status check...",
+          phase: "ci",
+        });
+      }
+      const result = await ciStatusHandler(args);
+      if (visual) {
+        await visual.visual_update_progress({
+          total: 1,
+          completed: 1,
+          currentTask: "CI status complete",
+          phase: "ci",
+        });
+      }
+      return result;
     });
   }
 }
